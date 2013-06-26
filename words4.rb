@@ -85,7 +85,9 @@
 #total_rounds = fixnum
 #percentages_per_round = array
 
+class Deck
 
+def initialize
 
 	@deck = []
 	@deck_hash = {}
@@ -98,20 +100,27 @@
 	#Tracks the index of the pairs that been guessed correctly. To be used so 
 	#correct answers aren't repeated.
 	@correct_pair_indices = []
+	@name = ""
 
-	@name = "6_24_2013"
-
-def display_menu
-puts "Please select an option and type in your choice. /n /n"
-puts "1 - Make New Deck /n /n"
-puts "2 - Open Old Deck"
-answer = gets.chomp
-	if answer == "1"
-		enter_deck
-	else
-		retrieve_deck
-	end
 end
+
+
+
+def display_deck_attr
+	puts @deck
+end
+
+# def display_menu
+# puts "Please select an option and type in your choice. /n /n"
+# puts "1 - Make New Deck /n /n"
+# puts "2 - Open Old Deck"
+# answer = gets.chomp
+# 	if answer == "1"
+# 		enter_deck
+# 	else
+# 		retrieve_deck
+# 	end
+# end
 
 def enter_deck
 	puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
@@ -122,37 +131,61 @@ def enter_deck
 
 	puts "Okay, this is the #{@name} deck."
 		enter_pair
+
 end
 
-	def enter_pair
-	puts "Please enter your pair. Please enter Done to terminate. "
-	input = gets.chomp
-
-	if input.to_s == ''
-		puts "This input is invalid. It doesn't look like you entered anything. Please re-enter the pair."
-		puts " " 
-		enter_pair
-
-	elsif input.downcase.strip != "done"
-		splitted = input.split(",")
-		if splitted[1].to_s == ''
-			puts "You didn't enter the second word. Please re-enter the pair."
-			puts " " 
-			enter_pair
-		else @deck << splitted[0]
-			@deck << splitted[1]
-			puts "The French term is : #{splitted[0]}"
-			puts "The English term is: #{splitted[1]}"
-			puts "This is the deck #{@deck}."
-			enter_pair
-			end
-	else
-		make_deck_hash
-		make_deck_csv
-		puts "Completed. Here is your deck: #{@deck_hash}"
+def return_deck_name
+	@name
 	end
 
-end
+	def enter_pair
+		puts "\nPlease enter your pair and make sure to separate the terms by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
+		input = gets.chomp
+
+		if input.to_s == ''
+			puts "This input is invalid. It doesn't look like you entered anything. Please re-enter the pair."
+			puts " " 
+			enter_pair
+
+		elsif input.downcase.strip != "done"
+			splitted = input.split(",")
+			if splitted[1].to_s == ''
+				puts "You didn't enter the second word. Please re-enter the pair."
+				puts " " 
+				enter_pair
+			else @deck << splitted[0]
+				@deck << splitted[1]
+				puts "The French term is : #{splitted[0]}"
+				puts "The English term is: #{splitted[1]}"
+				puts "This is the deck #{@deck}."
+				enter_pair
+				end
+		else
+			make_deck_hash
+			make_deck_csv
+			puts "Completed. Here is your deck: #{@deck_hash}"
+
+
+			puts "Would you like to take a quiz now? Please type 'y' if yes, or 'n' if no. "
+			answer = gets.chomp
+			while answer != 'y' && answer != 'n'
+				puts "Sorry, that wasn't a valid selection. Please enter 'y' for yes or 'n' for no."
+			end
+			if answer == 'y'
+				quiz
+			else answer == 'n'
+				u = User.new #hmmmm....
+				u.display_menu
+			end
+			
+
+
+		end
+		
+
+
+
+	end
 
 
 
@@ -270,6 +303,7 @@ def quiz
 
 	end
 	puts "Quiz ended!"
+	display_menu
 end
 
 require 'csv'
@@ -302,12 +336,140 @@ def retrieve_deck
 end
 
 
+#Deck class ends here
+end
+
+
+#-------------------Next Class: The User Class----------------------
+
+# Process:
+
+# (User enters deck)
+#  the number of total decks, and  the number of total words are each incremented
+# User does a quiz using the deck
+# After the quiz is completed, the amount of times deck has been studied is incremented, we'll store
+# this in the deck .csv file. 
+# Using this data, we'll generate a message. 
+# At the end of the week, Heroku will send out an email with statistics on
+# how well the user has done. 
+
+class User 
+
+  attr_accessor :total_decks, :total_rounds, :percentage_words_correct, :incorrect_words, :total_words_studied, :deck_names_array 
+
+
+  def initialize
+    @total_decks =  0
+    @deck_names_array = []
+    @total_rounds = 0
+    @percentage_words_correct = 0
+    @incorrect_words = []
+    @total_words_studied = 0 
+  end
+
+
+  def send_message
+    #heredoc syntax for a block of text
+   <<-MESSAGE
+    Dear User,
+
+    Here are your statistics for this week. 
+
+    Total decks: #{@total_decks}
+    Total words in all decks: #{@total_words_studied}
+    Rounds completed: #{@total_rounds} 
+    Average percentage of correct words: #{@percentage_words_correct}
+    Words to work on: #{@incorrect_words}
+
+
+  MESSAGE
+
+  end
 
 
 
 
-#Automatically prompt user to enter deck and then start the quiz
-enter_deck
-# quiz
+
+# def add_deck(deckname)
+
+#   enter the filename
+#   take filename and create a new deck with that filename
+#   prompt user to enter cards, or the file location
+
+# #Create a new deck
+# deck = Deck.new(deck)
+
+# #Enter the contents of the deck 
+# deck.enter_deck
+
+# #The user class keeps track of total decks a user has, and the names of those decks
+# @total_decks += 1
+# # @deck_names << deck.get_name
+# end
+
+
+
+def display_menu
+	puts "Please make a selection by entering the number next to the desired option."
+
+	puts "1. Enter New Deck"
+	puts "2. Display All Decks"
+	puts "3. Exit the Program"
+
+	answer = gets.chomp.strip
+
+	  if answer == "1"
+	    new_deck
+	  elsif answer == "2"
+	    display_all_decks
+	  elsif answer == "3"
+	  	puts "Thanks for studying!"
+	  	Kernel.exit
+	  else 
+	    puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
+	    u.display_menu
+	  end
+
+	#display_menu ends
+	end
+
+	#User class ends
+end
+
+
+##We need to do a scrutiny of the deck-related
+# methods in the User class. We may need to combine
+# them into more succint methods and place them in the Deck
+# class. 
+def new_deck
+	ndeck = Deck.new
+	ndeck.enter_deck
+	dname = ndeck.return_deck_name
+	add_deck_name(dname)
+	@total_decks += 1
+end
+
+def add_deck_name(deck_name)
+	@deck_names_array << deck_name
+end
+
+def display_all_decks
+puts "Here's the list of decks: #{@deck_names_array}"
+end
+
+
+
+
+
+
+
+
+# #Automatically prompt user to enter deck and then start the quiz
+# enter_deck
+# # quiz
+u = User.new
+puts "User initalized"
+puts "Displaying menu"
+u.display_menu
 
 
