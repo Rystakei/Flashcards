@@ -86,41 +86,94 @@
 #percentages_per_round = array
 
 class Deck
-@@total_decks = 0
-@@all_decks_entered = []
-attr_accessor :name
+	@@total_decks = 0
+	@@all_decks_entered = []
+	
+	attr_accessor :name, :cards
 
-def initialize
+	def initialize
 
-	@deck = []
-	@deck_hash = {}
-	#Tracks the cards that are correct
-	@correct_answers = []
+		@cards = []
+		@deck_hash = {}
+		#Tracks the cards that are correct
+		@correct_answers = []
 
-	#Tracks the answers that are incorrect
-	@incorrect_answers = []
+		#Tracks the answers that are incorrect
+		@incorrect_answers = []
 
-	#Tracks the index of the pairs that been guessed correctly. To be used so 
-	#correct answers aren't repeated.
-	@correct_pair_indices = []
-	@name = ""
+		#Tracks the index of the pairs that been guessed correctly. To be used so 
+		#correct answers aren't repeated.
+		@correct_pair_indices = []
+		@name = ""
 
-	enter_deck
+		enter_deck
 
-	@@all_decks_entered << self
-	@@total_decks += 1
-
-end
-
+		@@all_decks_entered << self
+		@@total_decks += 1
 
 
-def self.display_all_decks
-	puts 'Please choose a deck:'
-	@@all_decks_entered.each do |deck|
-		puts "Name: #{deck.name}"
-		puts "-----"
+		puts "Would you like to take a quiz now? Please type 'y' if yes, or 'n' if no. "
+		answer = gets.chomp
+		while answer != 'y' && answer != 'n'
+			puts "Sorry, that wasn't a valid selection. Please enter 'y' for yes or 'n' for no."
+		end
+		
+		if answer == 'y'
+			quiz
+		else answer == 'n'
+			# u = User.new #hmmmm....
+			Menu.display_menu
+		end
+
 	end
-end
+
+
+	# def self.display_all_decks
+	# 	puts 'Please choose a deck by entering the appropriate number, i.e. "1" for the first deck:'
+	# 	puts 'If you would like to return to the main menu, please enter "0". ' 
+	
+
+	# 	counter = 0 
+	# 	@@all_decks_entered.each do |deck|
+	# 		counter += 1
+	# 		puts "#{counter}: #{deck.name}"
+	# 		puts "-----"
+	# 	end
+	# 	answer = gets.chomp.to_i
+	# 	if answer == 0
+	# 		Menu.display_menu
+	# 	else
+	# 		deck = @@all_decks_entered[answer-1]
+	# 		deck_name = deck.name
+	# 		puts "Here is the deck's name: #{deck_name}" 
+	# 		Deck.retrieve_deck(deck_name)
+	# 		puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
+	# 		deck.quiz
+	# 	end
+
+	# end
+
+	def self.display_all_decks
+		puts 'Please choose a deck by entering the appropriate number, i.e. "1" for the first deck:'
+		puts 'If you would like to return to the main menu, please enter "0". ' 
+		counter = 0
+		Dir.glob('decks/*.csv').each do |f|
+			counter += 1
+			@@all_decks_entered << f
+			puts "#{counter}. #{f[6..-5]} "
+		end
+		answer = gets.chomp.to_i
+		if answer == 0
+			Menu.display_menu
+		else
+			deck = @@all_decks_entered[answer-1]
+			deck_name = deck.name
+			puts "Here is the deck's name: #{deck_name}" 
+			Deck.retrieve_deck(deck_name)
+			puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
+			deck.quiz
+		end
+	end
 
 # def display_menu
 # puts "Please select an option and type in your choice. /n /n"
@@ -134,24 +187,21 @@ end
 # 	end
 # end
 
-def enter_deck
-	puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
-	@name = gets.chomp
-	if @name.include?("date")
-		@name = "#{Time.now.month}_#{Time.now.day}_#{Time.now.year}"
-	end
+	def enter_deck
+		puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
+		@name = gets.chomp
+		if @name.include?("date")
+			@name = "#{Time.now.month}_#{Time.now.day}_#{Time.now.year}"
+		end
 
-	puts "Okay, this is the #{@name} deck."
+		puts "Okay, this is the #{@name} deck."
 		enter_pair
 
-end
-
-def return_deck_name
-	@name
 	end
 
+
 	def enter_pair
-		puts "\nPlease enter your pair and make sure to separate the terms by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
+		puts "\nPlease enter your pair and make sure to separate the term and definition by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
 		input = gets.chomp
 
 		if input.to_s == ''
@@ -165,37 +215,18 @@ def return_deck_name
 				puts "You didn't enter the second word. Please re-enter the pair."
 				puts " " 
 				enter_pair
-			else @deck << splitted[0]
-				@deck << splitted[1]
-				puts "The French term is : #{splitted[0]}"
-				puts "The English term is: #{splitted[1]}"
+			else @cards<< splitted[0]
+				@cards << splitted[1]
+				puts "The term is : #{splitted[0]}"
+				puts "The definition is: #{splitted[1]}"
 				puts "This is the deck #{@deck}."
 				enter_pair
-				end
+			end
 		else
-			make_deck_hash
+			Deck.make_deck_hash
 			make_deck_csv
 			puts "Completed. Here is your deck: #{@deck_hash}"
-
-
-			puts "Would you like to take a quiz now? Please type 'y' if yes, or 'n' if no. "
-			answer = gets.chomp
-			while answer != 'y' && answer != 'n'
-				puts "Sorry, that wasn't a valid selection. Please enter 'y' for yes or 'n' for no."
-			end
-			if answer == 'y'
-				quiz
-			else answer == 'n'
-				u = User.new #hmmmm....
-				u.display_menu
-			end
-			
-
-
 		end
-		
-
-
 
 	end
 
@@ -203,37 +234,35 @@ def return_deck_name
 
 #Change array into hash
 
-def make_deck_hash 
-	@deck_hash = Hash[*@deck]
-end 
+	def self.make_deck_hash 
+		@deck_hash = Hash[*@cards]
+	end 
 
-def display_deck
-	puts @deck_hash
-end
 
 #modify_pair needs to be added for typos
 
-#Not working properly..need to work on this
-# def retrieve_pair
-# french_words, english_words= CSV.read("#{@name}.csv")
-# puts "French Words + #{french_words}"
-# puts "English Words + #{english_words}" 
-# end
 
+	def save_user_info
+		#Need to save the names of decks that a user has
+		#Need to save how many times the deck has been reviewed
+		#Need to save the average score each time the deck has been reviewed
 
-def return_pair(num)
-	pair = " #{@deck_hash.keys[num]} + #{@deck_hash.values[num]}"
-end
-
-def return_all_pairs
-counter = 0
-
-	while counter < @deck_hash.size
-		puts "Pair #ei{counter+1}: #{@deck_hash.keys[counter]} + #{@deck_hash.values[counter]}"
-		counter = counter + 1
 	end
 
-end
+
+	def return_pair(num)
+		pair = " #{@deck_hash.keys[num]} + #{@deck_hash.values[num]}"
+	end
+
+	def return_all_pairs
+		counter = 0
+
+		while counter < @deck_hash.size
+			puts "Pair #ei{counter+1}: #{@deck_hash.keys[counter]} + #{@deck_hash.values[counter]}"
+			counter = counter + 1
+		end
+
+	end
 # def check_random_pair
 # 		#checks the array numbers_used to make sure that pair number hasn't already been called. 
 # 		#If it's been used, the method will be called again.
@@ -252,100 +281,98 @@ end
 # 			end
 # 		end
 
-def generate_random_number
-		rand_num = rand(@deck_hash.size)
-		if @correct_pair_indices.include?(rand_num)
-			generate_random_number
-		else 
-			return rand_num
-		end
-end
-
-def quiz
-	#Displays a key to the user and user has to type in the correct term. 
-	#If the term is correct, moves on to next term. 
-	#If term is incorrect, user is shown the answer and will be quizzed again. 
-	#Keeps track of what cards have been presented to the user. 
-	#Keeps track of the words that are wrong. If words are wrong, they remain in the deck. 
-	#When all the cards have been answered correctly, user is presented with how many
-	#times they got each word wrong and the percentage of words right on the first try. 
-
-
-	##Need to make sure flashcard is not in correct_answers array. 
-	
-	# pair_number = generate_random_number
-
-	# #question is a random key from @deck)hash
-	# question = @deck_hash.keys[pair_number]
-	# #correct_answer is the corresponding key
-	# correct_answer = @deck_hash.values[pair_number]
-
-	until @correct_answers.size == @deck_hash.size
-		##Need to make sure flashcard is not in correct_answers array. 
-		pair_number = generate_random_number
-		#question is a random key from @deck)hash
-		question = @deck_hash.keys[pair_number]
-		#correct_answer is the corresponding key
-		correct_answer = @deck_hash.values[pair_number]
-
-		puts "#{@correct_answers.size} <-- Correct Answers' array size"
-		puts "#{@deck_hash.size} <-- Deck Hash' array size"
-	puts "The card is: #{question}" 
-	user_answer = gets.chomp
-	puts " " 
-	puts " "
-	puts " "
-	puts " "
-	puts " "
-
-		if user_answer == correct_answer.strip.downcase
-			#Put user_answers
-			@correct_answers << user_answer
-			@correct_pair_indices<< pair_number
-			puts "You got it right!" 
-			puts "Current correct answers: #{@correct_answers} \n"
-			puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
-		else
-			@incorrect_answers << user_answer
-			puts "Sorry, that isn't the right answer. \n\n"
-			puts "The correct answer is #{correct_answer}. \n\n"
-			puts "Current correct answers: #{@correct_answers} \n\n"
-			puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
-		end
-
+	def generate_random_number
+			rand_num = rand(@deck_hash.size)
+			if @correct_pair_indices.include?(rand_num)
+				generate_random_number
+			else 
+				return rand_num
+			end
 	end
-	puts "Quiz ended!"
-	display_menu
-end
 
-require 'csv'
+	def quiz
+		#Displays a key to the user and user has to type in the correct term. 
+		#If the term is correct, moves on to next term. 
+		#If term is incorrect, user is shown the answer and will be quizzed again. 
+		#Keeps track of what cards have been presented to the user. 
+		#Keeps track of the words that are wrong. If words are wrong, they remain in the deck. 
+		#When all the cards have been answered correctly, user is presented with how many
+		#times they got each word wrong and the percentage of words right on the first try. 
 
-def make_deck_csv
-#THIS WORKS! Let's make a method.
 
-#Need to use string interpolation to make it customizable for different languages.  
-headers = ["French Word/Phrase", "English Word/Phrase"]
-CSV.open("#{@name}.csv", "w") do |csv|
-  csv << headers
-  @deck_hash.each_pair {|pair| csv << pair}
-end
-end
+		##Need to make sure flashcard is not in correct_answers array. 
+		
+		# pair_number = generate_random_number
+
+		# #question is a random key from @deck)hash
+		# question = @deck_hash.keys[pair_number]
+		# #correct_answer is the corresponding key
+		# correct_answer = @deck_hash.values[pair_number]
+
+		until @correct_answers.size == @deck_hash.size
+			##Need to make sure flashcard is not in correct_answers array. 
+			pair_number = generate_random_number
+			#question is a random key from @deck)hash
+			question = @deck_hash.keys[pair_number]
+			#correct_answer is the corresponding key
+			correct_answer = @deck_hash.values[pair_number]
+
+			puts "The card is: #{question}" 
+			user_answer = gets.chomp
+			puts " " 
+			puts " "
+			puts " "
+			puts " "
+			puts " "
+
+			if user_answer == correct_answer.strip.downcase
+				#Put user_answers
+				@correct_answers << user_answer
+				@correct_pair_indices<< pair_number
+				puts "You got it right!" 
+				puts "Current correct answers: #{@correct_answers} \n"
+				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
+			else
+				@incorrect_answers << user_answer
+				puts "Sorry, that isn't the right answer. \n\n"
+				puts "The correct answer is #{correct_answer}. \n\n"
+				puts "Current correct answers: #{@correct_answers} \n\n"
+				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
+			end
+
+		end
+		puts "Quiz ended!"
+		Menu.display_menu
+	end
+
+	require 'csv'
+
+	def make_deck_csv
+	#THIS WORKS! Let's make a method.
+
+	#Need to use string interpolation to make it customizable for different languages.  
+		headers = ["French Word/Phrase", "English Word/Phrase"]
+		CSV.open("#{@name}.csv", "w") do |csv|
+	  	csv << headers
+	  	@deck_hash.each_pair {|pair| csv << pair}
+		end
+	end
 
 #modify_pair needs to be added for typos
 
 
-def retrieve_deck
-	@deck = []
-	CSV.foreach("#{@name}.csv") do |row|
-		splitted = row.join
-		@deck<< splitted[0]
-		@deck<< splitted[1]
-		puts "Row: #{row}"
+	def self.retrieve_deck(name)
+		@cards= []
+		CSV.foreach("decks/#{name}.csv") do |row|
+			splitted = row.join
+			@cards<< splitted[0]
+			@cards<< splitted[1]
+			puts "Row: #{row}"
+		end
+		@cards.shift
+		@cards.shift
+		make_deck_hash
 	end
-	@deck.shift
-	@deck.shift
-	make_deck_hash
-end
 
 
 #Deck class ends here
@@ -382,7 +409,7 @@ class User
 
   def send_message
     #heredoc syntax for a block of text
-   <<-MESSAGE
+   	<<-MESSAGE
     Dear User,
 
     Here are your statistics for this week. 
@@ -394,7 +421,7 @@ class User
     Words to work on: #{@incorrect_words}
 
 
-  MESSAGE
+  	MESSAGE
 
   end
 
@@ -420,103 +447,51 @@ class User
 # end
 
 
-#Old Version to be deleted
-# def display_menu
-# 	puts "Please make a selection by entering the number next to the desired option."
-
-# 	puts "1. Enter New Deck"
-# 	puts "2. Display All Decks"
-# 	puts "3. Exit the Program"
-
-# 	answer = gets.chomp.strip
-
-# 	  if answer == "1"
-# 	    Deck.new
-# 	  elsif answer == "2"
-# 	  	puts "Hi!"
-# 	  elsif answer == "3"
-# 	  	puts "Thanks for studying!"
-# 	  	Kernel.exit
-# 	  else 
-# 	    puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
-# 	    u.display_menu
-# 	  end
-
-# 	#display_menu ends
-# 	end
-
-
-def display_deck
-	puts "Please make a selection by entering the number next to the desired option."
-	puts "1. Enter New Deck"
-	puts "2. Display All Decks"
-	puts "3. Exit the Program"
-
-	answer = gets.chomp.strip
-	if answer == "1"
-		Deck.new
-	elsif answer == "2"
-		Deck.display_all_decks
-	elsif answer == "3"
-		puts "Thanks for studying!"
-		Kernel.exit
-	else
-		puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
-	end
-
-
-# puts "Do you want to go back to the menu? Please enter 'y' or 'n'."
-# answer = gets.chomp.strip
-
-# while answer != 'n' || answer !='y'
-# 	if answer == 'y'
-# 		display_menu
-# 	elsif answer == 'n'
-# 		Kernel.exit
-# 	else
-# 		puts "Sorry, that is not a valid selection. Please enter 'y' or 'n'."
-# 	end
-end
 
 
 	#User class ends
 end
 
-
-##We need to do a scrutiny of the deck-related
-# methods in the User class. We may need to combine
-# them into more succint methods and place them in the Deck
-# class. 
-# def new_deck
-# 	ndeck = Deck.new
-# 	ndeck.enter_deck
-# 	dname = ndeck.return_deck_name
-# 	add_deck_name(dname)
-# 	@total_decks += 1
-# end
-
-# def add_deck_name(deck_name)
-# 	@deck_names_array << deck_name
-# end
-
-# def display_all_decks
-# puts "Here's the list of decks: #{@deck_names_array}"
-# end
-
-
-
-
-
-
-
-
 # #Automatically prompt user to enter deck and then start the quiz
-# enter_deck
-# # quiz
-u = User.new
-puts "User initalized"
+
+
+
+
+class Menu
+
+
+	def self.display_menu
+		puts "Please make a selection by entering the number next to the desired option."
+		puts "1. Enter New Deck"
+		puts "2. Display All Decks"
+		puts "3. Exit the Program"
+
+		answer = gets.chomp.strip
+		if answer == "1"
+			Deck.new
+		elsif answer == "2"
+			Deck.display_all_decks
+		elsif answer == "3"
+			puts "Thanks for studying!"
+			Kernel.exit
+		else
+			puts 'Sorry, that is not a valid selection. Please enter "1", "2", or "3" .'
+		end
+	end
+
+end
+
+
+
 puts "Displaying menu"
-u.display_deck
+Menu.display_menu
 
 
+# class CardDeck
 
+# 	def self.execute
+
+		
+# 	end
+
+# end
