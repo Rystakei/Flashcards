@@ -86,6 +86,9 @@
 #percentages_per_round = array
 
 class Deck
+@@total_decks = 0
+@@all_decks_entered = []
+attr_accessor :name
 
 def initialize
 
@@ -102,12 +105,21 @@ def initialize
 	@correct_pair_indices = []
 	@name = ""
 
+	enter_deck
+
+	@@all_decks_entered << self
+	@@total_decks += 1
+
 end
 
 
 
-def display_deck_attr
-	puts @deck
+def self.display_all_decks
+	puts 'Please choose a deck:'
+	@@all_decks_entered.each do |deck|
+		puts "Name: #{deck.name}"
+		puts "-----"
+	end
 end
 
 # def display_menu
@@ -408,30 +420,64 @@ class User
 # end
 
 
+#Old Version to be deleted
+# def display_menu
+# 	puts "Please make a selection by entering the number next to the desired option."
 
-def display_menu
+# 	puts "1. Enter New Deck"
+# 	puts "2. Display All Decks"
+# 	puts "3. Exit the Program"
+
+# 	answer = gets.chomp.strip
+
+# 	  if answer == "1"
+# 	    Deck.new
+# 	  elsif answer == "2"
+# 	  	puts "Hi!"
+# 	  elsif answer == "3"
+# 	  	puts "Thanks for studying!"
+# 	  	Kernel.exit
+# 	  else 
+# 	    puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
+# 	    u.display_menu
+# 	  end
+
+# 	#display_menu ends
+# 	end
+
+
+def display_deck
 	puts "Please make a selection by entering the number next to the desired option."
-
 	puts "1. Enter New Deck"
 	puts "2. Display All Decks"
 	puts "3. Exit the Program"
 
 	answer = gets.chomp.strip
-
-	  if answer == "1"
-	    new_deck
-	  elsif answer == "2"
-	    display_all_decks
-	  elsif answer == "3"
-	  	puts "Thanks for studying!"
-	  	Kernel.exit
-	  else 
-	    puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
-	    u.display_menu
-	  end
-
-	#display_menu ends
+	if answer == "1"
+		Deck.new
+	elsif answer == "2"
+		Deck.display_all_decks
+	elsif answer == "3"
+		puts "Thanks for studying!"
+		Kernel.exit
+	else
+		puts 'Sorry, that is not a valid selection. Please enter "1" or "2" .'
 	end
+
+
+# puts "Do you want to go back to the menu? Please enter 'y' or 'n'."
+# answer = gets.chomp.strip
+
+# while answer != 'n' || answer !='y'
+# 	if answer == 'y'
+# 		display_menu
+# 	elsif answer == 'n'
+# 		Kernel.exit
+# 	else
+# 		puts "Sorry, that is not a valid selection. Please enter 'y' or 'n'."
+# 	end
+end
+
 
 	#User class ends
 end
@@ -441,21 +487,21 @@ end
 # methods in the User class. We may need to combine
 # them into more succint methods and place them in the Deck
 # class. 
-def new_deck
-	ndeck = Deck.new
-	ndeck.enter_deck
-	dname = ndeck.return_deck_name
-	add_deck_name(dname)
-	@total_decks += 1
-end
+# def new_deck
+# 	ndeck = Deck.new
+# 	ndeck.enter_deck
+# 	dname = ndeck.return_deck_name
+# 	add_deck_name(dname)
+# 	@total_decks += 1
+# end
 
-def add_deck_name(deck_name)
-	@deck_names_array << deck_name
-end
+# def add_deck_name(deck_name)
+# 	@deck_names_array << deck_name
+# end
 
-def display_all_decks
-puts "Here's the list of decks: #{@deck_names_array}"
-end
+# def display_all_decks
+# puts "Here's the list of decks: #{@deck_names_array}"
+# end
 
 
 
@@ -470,6 +516,7 @@ end
 u = User.new
 puts "User initalized"
 puts "Displaying menu"
-u.display_menu
+u.display_deck
+
 
 
