@@ -89,7 +89,7 @@ class Deck
 	@@total_decks = 0
 	@@all_decks_entered = []
 	
-	attr_accessor :name, :cards
+	attr_accessor :name, :cards, :deck_hash
 
 	def initialize
 
@@ -106,10 +106,65 @@ class Deck
 		@correct_pair_indices = []
 		@name = ""
 
-		enter_deck
+	end
+
+	# #This was the old initialize method, but I'm calling it something different because it prompts the user to enter the information. If the user
+	# is initializing a new Deck object when retrieving a deck, they shouldn't be prompted to manually enter the information. 
+	def self.enter_new_deck
+
+		@cards = []
+		@deck_hash = {}
+		#Tracks the cards that are correct
+		@correct_answers = []
+
+		#Tracks the answers that are incorrect
+		@incorrect_answers = []
+
+		#Tracks the index of the pairs that been guessed correctly. To be used so 
+		#correct answers aren't repeated.
+		@correct_pair_indices = []
+		@name = ""
+
+		#enter_deck
+		puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
+		@name = gets.chomp
+		if @name.include?("date")
+			@name = "#{Time.now.month}_#{Time.now.day}_#{Time.now.year}"
+		end
+
+		puts "Okay, this is the #{@name} deck."
+		# enter_pair
+				puts "\nPlease enter your pair and make sure to separate the term and definition by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
+		input = gets.chomp
+
+		until input.downcase.strip == "done"
+			splitted = input.split(",")
+			if input.to_s == ''
+				puts "This input is invalid. It doesn't look like you entered anything. Please re-enter the pair."
+				puts " " 
+			elsif splitted[1].to_s == ''
+				puts "You didn't enter the second word. Please re-enter the pair."
+				puts " " 
+			elsif splitted[0].to_s != ''	
+				@cards<< splitted[0]
+			 	@cards << splitted[1]
+				puts "The term is : #{splitted[0]}"
+				puts "The definition is: #{splitted[1]}"
+				puts "Please enter your next pair "
+			else
+				puts
+			end
+			input = gets.chomp
+		end
+		
+		Deck.make_deck_csv
+		puts "This is the deck #{@deck}."
+		puts "Completed."
 
 		@@all_decks_entered << self
 		@@total_decks += 1
+
+		#end of enter_pair method
 
 
 		puts "Would you like to take a quiz now? Please type 'y' if yes, or 'n' if no. "
@@ -119,6 +174,9 @@ class Deck
 		end
 		
 		if answer == 'y'
+			retrieved_deck_str = @@all_decks_entered[d1.name]
+			d1 = Deck.new
+			d1.deck_hash = Deck.retrieve_deck(retrieved_deck_str)
 			quiz
 		else answer == 'n'
 			# u = User.new #hmmmm....
@@ -126,6 +184,7 @@ class Deck
 		end
 
 	end
+
 
 
 	# def self.display_all_decks
@@ -157,21 +216,28 @@ class Deck
 		puts 'Please choose a deck by entering the appropriate number, i.e. "1" for the first deck:'
 		puts 'If you would like to return to the main menu, please enter "0". ' 
 		counter = 0
+		#Iterate through the 'decks' folder and print out the name of each file to the user. 
 		Dir.glob('decks/*.csv').each do |f|
 			counter += 1
-			@@all_decks_entered << f
 			puts "#{counter}. #{f[6..-5]} "
+			deck_name = f[6..-5]
+			@@all_decks_entered << deck_name
+
 		end
 		answer = gets.chomp.to_i
+		#If user answers '0', display the menu
 		if answer == 0
 			Menu.display_menu
+		#If the user enters a number, display the right deck. This probably needs a fix to account for incorrect entries like letters
+		#or spaces. 
 		else
-			deck = @@all_decks_entered[answer-1]
-			deck_name = deck.name
-			puts "Here is the deck's name: #{deck_name}" 
-			Deck.retrieve_deck(deck_name)
+			retrieved_deck_str = @@all_decks_entered[answer-1]
+			puts "#{retrieved_deck_str.class} <-- This is the retrieved deck's class (should be string)"
+			puts "Here is the string of the retrieved deck's name: #{retrieved_deck_str}" 
+			d1 = Deck.new
+			d1.deck_hash = Deck.retrieve_deck(retrieved_deck_str)
 			puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
-			deck.quiz
+			d1.quiz
 		end
 	end
 
@@ -223,9 +289,8 @@ class Deck
 				enter_pair
 			end
 		else
-			Deck.make_deck_hash
 			make_deck_csv
-			puts "Completed. Here is your deck: #{@deck_hash}"
+			puts "Completed."
 		end
 
 	end
@@ -308,7 +373,7 @@ class Deck
 		# question = @deck_hash.keys[pair_number]
 		# #correct_answer is the corresponding key
 		# correct_answer = @deck_hash.values[pair_number]
-
+		puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_hash}. "
 		until @correct_answers.size == @deck_hash.size
 			##Need to make sure flashcard is not in correct_answers array. 
 			pair_number = generate_random_number
@@ -347,12 +412,12 @@ class Deck
 
 	require 'csv'
 
-	def make_deck_csv
+	def self.make_deck_csv
 	#THIS WORKS! Let's make a method.
 
 	#Need to use string interpolation to make it customizable for different languages.  
 		headers = ["French Word/Phrase", "English Word/Phrase"]
-		CSV.open("#{@name}.csv", "w") do |csv|
+		CSV.open("decks/#{@name}.csv", "w") do |csv|
 	  	csv << headers
 	  	@deck_hash.each_pair {|pair| csv << pair}
 		end
@@ -360,19 +425,36 @@ class Deck
 
 #modify_pair needs to be added for typos
 
-
 	def self.retrieve_deck(name)
-		@cards= []
-		CSV.foreach("decks/#{name}.csv") do |row|
-			splitted = row.join
-			@cards<< splitted[0]
-			@cards<< splitted[1]
-			puts "Row: #{row}"
+		retrieved_deck = {}
+		CSV.open("decks/#{name}.csv", "r", {:headers => :first_row}) do |csv|
+			matches = csv.find_all do |row|
+				key= row[0]
+				value = row[1]
+				retrieved_deck = {key => value}
+				# key_value = row.split(",")
+				# puts row.class
+				# puts row
+
+			end
 		end
-		@cards.shift
-		@cards.shift
-		make_deck_hash
+		return retrieved_deck
 	end
+# Old way 
+	# def self.retrieve_deck(name)
+	# 	@cards= []
+	# 	CSV.foreach("decks/#{name}.csv") do |row|
+	# 		splitted = row.join
+	# 		puts splitted
+	# 		@cards<< splitted[0]
+	# 		@cards<< splitted[1]
+	# 		puts "Row: #{row}"
+	# 	end
+	# 	@cards.shift
+	# 	@cards.shift
+	# 	deck = make_deck_hash
+	# 	return deck
+	# end
 
 
 #Deck class ends here
@@ -468,7 +550,7 @@ class Menu
 
 		answer = gets.chomp.strip
 		if answer == "1"
-			Deck.new
+			Deck.enter_new_deck
 		elsif answer == "2"
 			Deck.display_all_decks
 		elsif answer == "3"
