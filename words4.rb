@@ -111,6 +111,7 @@ class Deck
 	# #This was the old initialize method, but I'm calling it something different because it prompts the user to enter the information. If the user
 	# is initializing a new Deck object when retrieving a deck, they shouldn't be prompted to manually enter the information. 
 	def self.enter_new_deck
+		d1 = Deck.new
 
 		@cards = []
 		@deck_hash = {}
@@ -156,10 +157,15 @@ class Deck
 			end
 			input = gets.chomp
 		end
-		
-		Deck.make_deck_csv
-		puts "This is the deck #{@deck}."
+		puts "This is what's in the cards array #{@cards}"
+		make_deck_hash
+		puts "The hash has been made. This is what's in it #{@deck_hash}"
+		puts "This is the deck object: #{d1}"
+		Deck.make_deck_csv(d1, @name, @deck_hash)
+		@deck_hash = Deck.retrieve_deck(@name)
+		puts "This is the deck #{@deck_hash}."
 		puts "Completed."
+
 
 		@@all_decks_entered << self
 		@@total_decks += 1
@@ -174,16 +180,33 @@ class Deck
 		end
 		
 		if answer == 'y'
-			retrieved_deck_str = @@all_decks_entered[d1.name]
-			d1 = Deck.new
-			d1.deck_hash = Deck.retrieve_deck(retrieved_deck_str)
-			quiz
+			@deck_hash = Deck.retrieve_deck(@name)
+			puts "This is d1's name :#{@name}"
+			puts "This is d1's deck_hash :#{@deck_hash}"
+			d1.quiz
 		else answer == 'n'
 			# u = User.new #hmmmm....
 			Menu.display_menu
 		end
 
 	end
+
+
+#This is a test method that I'll delete soon. 
+	def short_enter_pair
+		d1 = Deck.new
+		@name = "d1"
+		@deck_hash = {"deck"=>"hash"}
+		d1.make_deck_csv(d1)
+		s = "d1"
+
+		puts "I've made a new deck, and saved it. It's name is #{@name} and it's hash is #{@deck_hash}."
+
+		puts "I am retrieving it here...#{Deck.retrieve_deck(@name)}"
+
+	end
+
+
 
 
 
@@ -394,7 +417,8 @@ class Deck
 				#Put user_answers
 				@correct_answers << user_answer
 				@correct_pair_indices<< pair_number
-				puts "You got it right!" 
+				puts "You got it right!"
+				puts " " 
 				puts "Current correct answers: #{@correct_answers} \n"
 				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
 			else
@@ -412,14 +436,15 @@ class Deck
 
 	require 'csv'
 
-	def self.make_deck_csv
+	def self.make_deck_csv(deck, deck_name, deck_hash)
+		puts "This method is at least running."
+		puts "#{deck_hash}"
 	#THIS WORKS! Let's make a method.
-
-	#Need to use string interpolation to make it customizable for different languages.  
+	# Need to use string interpolation to make it customizable for different languages.  
 		headers = ["French Word/Phrase", "English Word/Phrase"]
-		CSV.open("decks/#{@name}.csv", "w") do |csv|
+		CSV.open("decks/#{deck_name}.csv", "w") do |csv|
 	  	csv << headers
-	  	@deck_hash.each_pair {|pair| csv << pair}
+	  	deck_hash.each_pair {|pair| csv << pair}
 		end
 	end
 
@@ -429,13 +454,13 @@ class Deck
 		retrieved_deck = {}
 		CSV.open("decks/#{name}.csv", "r", {:headers => :first_row}) do |csv|
 			matches = csv.find_all do |row|
+				key_value = row.to_s.split(",")
 				key= row[0]
-				value = row[1]
-				retrieved_deck = {key => value}
-				# key_value = row.split(",")
+				value = row[1]	
 				# puts row.class
 				# puts row
-
+				# retrieved_pair = {key => value} |this only pushes one pair in and overwrites the others
+				retrieved_deck[key] = value
 			end
 		end
 		return retrieved_deck
@@ -455,6 +480,18 @@ class Deck
 	# 	deck = make_deck_hash
 	# 	return deck
 	# end
+
+# def make_deck_csv(deck_name, deck_hash)
+# 	#THIS WORKS! Let's make a method.
+
+# 	#Need to use string interpolation to make it customizable for different languages.  
+# 		headers = ["French Word/Phrase", "English Word/Phrase"]
+# 		CSV.open("decks/#{deck_name}.csv", "w") do |csv|
+# 	  	csv << headers
+# 	  	deck_hash.each_pair {|pair| csv << pair}
+# 		end
+# 	end
+
 
 
 #Deck class ends here
@@ -543,6 +580,9 @@ class Menu
 
 
 	def self.display_menu
+		puts " "
+		puts "Main Menu"
+		puts " "
 		puts "Please make a selection by entering the number next to the desired option."
 		puts "1. Enter New Deck"
 		puts "2. Display All Decks"
