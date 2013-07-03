@@ -99,7 +99,7 @@ class Deck
 		@correct_answers = []
 
 		#Tracks the answers that are incorrect
-		@incorrect_answers = []
+		@incorrect_answers = {}
 
 		#Tracks the index of the pairs that been guessed correctly. To be used so 
 		#correct answers aren't repeated.
@@ -422,15 +422,17 @@ class Deck
 				puts "Current correct answers: #{@correct_answers} \n"
 				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
 			else
-				@incorrect_answers << user_answer
+				@incorrect_answers[question] = correct_answer
 				puts "Sorry, that isn't the right answer. \n\n"
 				puts "The correct answer is #{correct_answer}. \n\n"
 				puts "Current correct answers: #{@correct_answers} \n\n"
+				puts "You go these wrong: #{@incorrect_answers}"
 				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
 			end
 
 		end
 		puts "Quiz ended!"
+		puts "You need to work on the following terms: @incorrect_answers"
 		Menu.display_menu
 	end
 
