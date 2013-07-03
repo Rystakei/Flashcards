@@ -259,10 +259,23 @@ class Deck
 			puts "Here is the string of the retrieved deck's name: #{retrieved_deck_str}" 
 			d1 = Deck.new
 			d1.deck_hash = Deck.retrieve_deck(retrieved_deck_str)
-			puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
-			d1.quiz
+
+			# Display Deck Options Here
+			puts "Please make a selection from the following. "
+			puts "1. Review Deck"
+			puts "2. Recall Quiz - Type in Your Response"
+			puts "3. Multiple Choice Quiz"
+
+			answer = gets.chomp
+			if answer == "2"
+				puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
+				d1.quiz
+			end
+
 		end
 	end
+
+
 
 # def display_menu
 # puts "Please select an option and type in your choice. /n /n"
