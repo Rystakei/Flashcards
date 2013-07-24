@@ -270,8 +270,10 @@ class Deck
 			if answer == "2"
 				puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
 				d1.quiz
+			elsif answer == "3"
+				puts "Your quiz will begin now."
+				d1.quiz_2
 			end
-
 		end
 	end
 
@@ -448,6 +450,88 @@ class Deck
 		puts "You need to work on the following terms: @incorrect_answers"
 		Menu.display_menu
 	end
+
+
+
+
+def quiz_2
+	# The deck is loaded. 
+	# Four answers will be shown to the user at one time.
+	# The user must then select the correct answer by typing a, b, c, or d. 
+	# If the card is correct, it is added to the correct cards deck. 
+	# Otherwise, the answer is recorded in the incorrect answers deck.
+	# Each time a new card is pulled, we need to check if it is already in the correct cards deck.
+	@choices = []
+	# If it isn't, we need randomly generate another deck again. 
+
+puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_hash}. "
+		until @correct_answers.size == @deck_hash.size
+			##Need to make sure flashcard is not in correct_answers array. 
+			pair_number = generate_random_number
+			#question is a random key from @deck)hash
+			question = @deck_hash.keys[pair_number]
+			#correct_answer is the corresponding key
+			correct_answer = @deck_hash.values[pair_number]
+			@choices << correct_answer
+			generate_wrong_answers
+			puts " \n \n Here is the @choices array #{@choices}"
+
+			puts "The card is: #{question}" 
+			user_answer = gets.chomp
+			puts " \n \n \n \n \n" 
+
+			if @choices.include?(user_answer.strip.downcase)
+				#Put user_answers
+				@correct_answers << user_answer
+				@correct_pair_indices<< pair_number
+				puts "You got it right!"
+				puts " " 
+				puts "Current correct answers: #{@correct_answers} \n"
+				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
+			else
+				@incorrect_answers[question] = correct_answer
+				puts "Sorry, that isn't the right answer. \n\n"
+				puts "The correct answer is #{correct_answer}. \n\n"
+				puts "Current correct answers: #{@correct_answers} \n\n"
+				puts "You go these wrong: #{@incorrect_answers}"
+				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
+			end
+
+		end
+		puts "Quiz ended!"
+		puts "You need to work on the following terms: @incorrect_answers"
+		Menu.display_menu
+	end
+
+
+
+			#generate wrong answers that aren't the correct answer and haven't been gotten correct
+			def generate_wrong_answers
+			@current_wrong_pair_numbers = []
+			#@current_wrong_answers holds the three possible incorrect answers a user may choose. 
+			#The counter starts at 0 and is used in the loop so that three incorrect answers will be
+			# generated. 
+			counter = 0
+			#While less than 3 cards have been counted, run the following loop and increment the counter appropriately
+			while counter < 3
+			#generate a random number that is less than or equal to the card size. This is the card that will be
+			#tested. 
+			rand_num = rand(@deck_hash.size)
+			puts "The random number in generate_wrong_numbers: #{rand_num}"
+				#Check if the selected card has already been gotten correct by the user and if this card has
+				# already been selected to be tested during this question. If either of the conditions are true,
+				# generate a new random number. 
+				if @correct_pair_indices.include?(rand_num) || @choices.include?(@deck_hash.values[rand_num])
+					generate_random_number
+				#If the random number hasn't already been gotten correct and isn't already selected for the current question,
+				# add the card's answer (value of the pair number that has randomly generated) to the choices array. 
+				else 
+					@choices << @deck_hash.values[rand_num]
+				end
+				counter += 1
+			end
+		end
+
 
 	require 'csv'
 
