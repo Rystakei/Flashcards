@@ -420,11 +420,8 @@ class Deck
 
 			puts "The card is: #{question}" 
 			user_answer = gets.chomp
-			puts " " 
-			puts " "
-			puts " "
-			puts " "
-			puts " "
+			puts " \n \n \n" 
+		
 
 			if user_answer == correct_answer.strip.downcase
 				#Put user_answers
@@ -480,36 +477,7 @@ class Deck
 		end
 		return retrieved_deck
 	end
-# Old way 
-	# def self.retrieve_deck(name)
-	# 	@cards= []
-	# 	CSV.foreach("decks/#{name}.csv") do |row|
-	# 		splitted = row.join
-	# 		puts splitted
-	# 		@cards<< splitted[0]
-	# 		@cards<< splitted[1]
-	# 		puts "Row: #{row}"
-	# 	end
-	# 	@cards.shift
-	# 	@cards.shift
-	# 	deck = make_deck_hash
-	# 	return deck
-	# end
-
-# def make_deck_csv(deck_name, deck_hash)
-# 	#THIS WORKS! Let's make a method.
-
-# 	#Need to use string interpolation to make it customizable for different languages.  
-# 		headers = ["French Word/Phrase", "English Word/Phrase"]
-# 		CSV.open("decks/#{deck_name}.csv", "w") do |csv|
-# 	  	csv << headers
-# 	  	deck_hash.each_pair {|pair| csv << pair}
-# 		end
-# 	end
-
-
-
-#Deck class ends here
+#end class
 end
 
 
