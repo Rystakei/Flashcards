@@ -88,6 +88,7 @@
 class Deck
 	@@total_decks = 0
 	@@all_decks_entered = []
+	@@checked_numbers = []
 	
 	attr_accessor :name, :cards, :deck_hash
 
@@ -465,37 +466,59 @@ def quiz_2
 	# If it isn't, we need randomly generate another deck again. 
 
 puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_hash}. "
-		until @correct_answers.size == @deck_hash.size
-			##Need to make sure flashcard is not in correct_answers array. 
+		while @correct_pair_indices.length < 30
+
 			pair_number = generate_random_number
 			#question is a random key from @deck)hash
 			question = @deck_hash.keys[pair_number]
 			#correct_answer is the corresponding key
 			correct_answer = @deck_hash.values[pair_number]
 			@choices << correct_answer
+			#call method to generate three incorrect answers
 			generate_wrong_answers
-			puts " \n \n Here is the @choices array #{@choices}"
+			
+			#Display the card that is being tested
+			puts "-------------------------"
+			puts "The card is: #{question} \n \n"
+			puts "Please enter the number of the answer you would like to choose: \n" 
+			
 
-			puts "The card is: #{question}" 
-			user_answer = gets.chomp
+			#shuffle the cards  and display the possible choices to the user
+			counter = 1
+			while counter <= @choices.length 
+				@choices.shuffle!.each do |choice|
+				
+					puts "Choice #{counter}: #{choice} \n \n"
+					counter += 1
+					puts "The counter is currently at : #{counter}"
+				end
+			end
+			#Get the user's answer
+			puts "Please enter your answer: "
+			user_answer = gets.chomp.to_i
 			puts " \n \n \n \n \n" 
 
-			if @choices.include?(user_answer.strip.downcase)
+			if @choices[user_answer-1] == correct_answer
 				#Put user_answers
-				@correct_answers << user_answer
+				@correct_answers << @choices[user_answer-1]
 				@correct_pair_indices<< pair_number
 				puts "You got it right!"
 				puts " " 
+				puts "Deck hash size: #{@deck_hash.size} \n"
+				puts "Correct answers size: #{@correct_answers.size}\n"
 				puts "Current correct answers: #{@correct_answers} \n"
+				puts "You got these wrong: #{@incorrect_answers}"
 				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
+
 			else
 				@incorrect_answers[question] = correct_answer
 				puts "Sorry, that isn't the right answer. \n\n"
 				puts "The correct answer is #{correct_answer}. \n\n"
 				puts "Current correct answers: #{@correct_answers} \n\n"
-				puts "You go these wrong: #{@incorrect_answers}"
+				puts "You got these wrong: #{@incorrect_answers}"
 				puts "Cards remaining: #{@deck_hash.size - @correct_answers.size} \n\n"
 			end
+			@choices = []
 
 		end
 		puts "Quiz ended!"
@@ -503,11 +526,12 @@ puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_has
 		Menu.display_menu
 	end
 
-
+@@checked_numbers = []
 
 			#generate wrong answers that aren't the correct answer and haven't been gotten correct
 			def generate_wrong_answers
 			@current_wrong_pair_numbers = []
+
 			#@current_wrong_answers holds the three possible incorrect answers a user may choose. 
 			#The counter starts at 0 and is used in the loop so that three incorrect answers will be
 			# generated. 
@@ -517,18 +541,21 @@ puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_has
 			#generate a random number that is less than or equal to the card size. This is the card that will be
 			#tested. 
 			rand_num = rand(@deck_hash.size)
-			puts "The random number in generate_wrong_numbers: #{rand_num}"
 				#Check if the selected card has already been gotten correct by the user and if this card has
 				# already been selected to be tested during this question. If either of the conditions are true,
 				# generate a new random number. 
 				if @correct_pair_indices.include?(rand_num) || @choices.include?(@deck_hash.values[rand_num])
+					puts "\n We've already used this card. #{rand_num} \n \n"
 					generate_random_number
 				#If the random number hasn't already been gotten correct and isn't already selected for the current question,
 				# add the card's answer (value of the pair number that has randomly generated) to the choices array. 
 				else 
 					@choices << @deck_hash.values[rand_num]
+					@@checked_numbers << rand_num
+					puts "These are the numbers we've used so far: #{@@checked_numbers}"
+					counter += 1
 				end
-				counter += 1
+				
 			end
 		end
 
