@@ -127,31 +127,39 @@ class Deck
 		@correct_pair_indices = []
 		@name = ""
 
-		#enter_deck
+		#Prompts user to enter the name of the deck they are entering. 
 		puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
 		@name = gets.chomp
 		if @name.include?("date")
 			@name = "#{Time.now.month}_#{Time.now.day}_#{Time.now.year}"
 		end
+	puts "Okay, this is the #{@name} deck."
 
-		puts "Okay, this is the #{@name} deck."
-		# enter_pair
-				puts "\nPlease enter your pair and make sure to separate the term and definition by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
+		#Prompts user to enter in each card's term and definition. When finished, the user can enter "done" to terminate the loop. 
+		puts "\nPlease enter your pair and make sure to separate the term and definition by a comma.\n\nAn example is 'cat, feline'. Please enter 'done' to terminate. "
 		input = gets.chomp
-
+		#Checks the user input until the user enters "done". 
 		until input.downcase.strip == "done"
+			#The user input is split into the term and definition. 
 			splitted = input.split(",")
+			term = splitted[0]
+			definition = splitted[1]
+
+			#Checks if the user input is blank and alerts user if so
 			if input.to_s == ''
 				puts "This input is invalid. It doesn't look like you entered anything. Please re-enter the pair."
 				puts " " 
-			elsif splitted[1].to_s == ''
+
+			#Checks to make sure the definition has been entered
+			elsif definition.to_s == ''
 				puts "You didn't enter the second word. Please re-enter the pair."
 				puts " " 
-			elsif splitted[0].to_s != ''	
-				@cards<< splitted[0]
-			 	@cards << splitted[1]
-				puts "The term is : #{splitted[0]}"
-				puts "The definition is: #{splitted[1]}"
+			#If input lacks problems, add the term and definition to the cards deck
+			elsif term.to_s != ''	
+				@cards<< term
+			 	@cards << definition
+				puts "The term is : #{term}"
+				puts "The definition is: #{definition}"
 				puts "Please enter your next pair "
 			else
 				puts
