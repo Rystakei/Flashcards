@@ -544,15 +544,18 @@ puts "This is in the quiz method. The contents of the @deck_hash are #{@deck_has
 				#Check if the selected card has already been gotten correct by the user and if this card has
 				# already been selected to be tested during this question. If either of the conditions are true,
 				# generate a new random number. 
-				if @correct_pair_indices.include?(rand_num) || @choices.include?(@deck_hash.values[rand_num])
-					puts "\n We've already used this card. #{rand_num} \n \n"
+				if @correct_pair_indices.include?(rand_num) && !@choices.include?(@deck_hash.values[rand_num])
+					puts "These are the numbers in the @correct_pair_indices #{@correct_pair_indices.sort}"
+					puts "The current number is : #{rand_num}."
+					puts "Is it included in the @correct_pair_indices? #{@correct_pair_indices.include?(rand_num)}"
+					puts "Is it included in the @choices? #{@choices.include?(@deck_hash.values[rand_num])}"
 					generate_random_number
 				#If the random number hasn't already been gotten correct and isn't already selected for the current question,
 				# add the card's answer (value of the pair number that has randomly generated) to the choices array. 
 				else 
 					@choices << @deck_hash.values[rand_num]
-					@@checked_numbers << rand_num
-					puts "These are the numbers we've used so far: #{@@checked_numbers}"
+					puts "These are the current choices: #{@choices}"
+					puts "This number should not be among them: #{rand_num}"
 					counter += 1
 				end
 				
