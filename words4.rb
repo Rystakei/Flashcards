@@ -206,35 +206,6 @@ class Deck
 
 	end
 
-
-
-
-
-	# def self.display_all_decks
-	# 	puts 'Please choose a deck by entering the appropriate number, i.e. "1" for the first deck:'
-	# 	puts 'If you would like to return to the main menu, please enter "0". ' 
-	
-
-	# 	counter = 0 
-	# 	@@all_decks_entered.each do |deck|
-	# 		counter += 1
-	# 		puts "#{counter}: #{deck.name}"
-	# 		puts "-----"
-	# 	end
-	# 	answer = gets.chomp.to_i
-	# 	if answer == 0
-	# 		Menu.display_menu
-	# 	else
-	# 		deck = @@all_decks_entered[answer-1]
-	# 		deck_name = deck.name
-	# 		puts "Here is the deck's name: #{deck_name}" 
-	# 		Deck.retrieve_deck(deck_name)
-	# 		puts "Your quiz will begin now." #We will insert additional options for type of quiz or to update the deck later on. 
-	# 		deck.quiz
-	# 	end
-
-	# end
-
 	def self.display_all_decks
 		puts 'Please choose a deck by entering the appropriate number, i.e. "1" for the first deck:'
 		puts 'If you would like to return to the main menu, please enter "0". ' 
@@ -274,20 +245,6 @@ class Deck
 
 		end
 	end
-
-
-
-# def display_menu
-# puts "Please select an option and type in your choice. /n /n"
-# puts "1 - Make New Deck /n /n"
-# puts "2 - Open Old Deck"
-# answer = gets.chomp
-# 	if answer == "1"
-# 		enter_deck
-# 	else
-# 		retrieve_deck
-# 	end
-# end
 
 	def enter_deck
 		puts "What do you want to name this deck? Enter 'date' if you would like to use today's date."
@@ -331,8 +288,6 @@ class Deck
 
 	end
 
-
-
 #Change array into hash
 
 	def self.make_deck_hash 
@@ -364,23 +319,6 @@ class Deck
 		end
 
 	end
-# def check_random_pair
-# 		#checks the array numbers_used to make sure that pair number hasn't already been called. 
-# 		#If it's been used, the method will be called again.
-# 		#If it hasn't been used, the number will be used to create pull the question and correct
-# 		#answer from the deck. 
-# 		numbers_used = []
-# 			if !numbers_used.include?(random_number)
-# 				generate_random_pair
-# 			else 
-# 				#Displays a card randomly from the deck
-# 				random_number = rand(@deck_hash.size)
-# 				#question is a random key from @deck)hash
-# 				question = @deck_hash.keys[random_number]
-# 				#correct_answer is the corresponding key
-# 				correct_answer = @deck_hash.values[random_number]
-# 			end
-# 		end
 
 	def generate_random_number
 			rand_num = rand(@deck_hash.size)
@@ -451,16 +389,12 @@ class Deck
 	def self.make_deck_csv(deck, deck_name, deck_hash)
 		puts "This method is at least running."
 		puts "#{deck_hash}"
-	#THIS WORKS! Let's make a method.
-	# Need to use string interpolation to make it customizable for different languages.  
 		headers = ["French Word/Phrase", "English Word/Phrase"]
 		CSV.open("decks/#{deck_name}.csv", "w") do |csv|
 	  	csv << headers
 	  	deck_hash.each_pair {|pair| csv << pair}
 		end
 	end
-
-#modify_pair needs to be added for typos
 
 	def self.retrieve_deck(name)
 		retrieved_deck = {}
@@ -527,36 +461,10 @@ class User
 
   end
 
-
-
-
-
-# def add_deck(deckname)
-
-#   enter the filename
-#   take filename and create a new deck with that filename
-#   prompt user to enter cards, or the file location
-
-# #Create a new deck
-# deck = Deck.new(deck)
-
-# #Enter the contents of the deck 
-# deck.enter_deck
-
-# #The user class keeps track of total decks a user has, and the names of those decks
-# @total_decks += 1
-# # @deck_names << deck.get_name
-# end
-
-
-
-
 	#User class ends
 end
 
 # #Automatically prompt user to enter deck and then start the quiz
-
-
 
 
 class Menu
@@ -586,17 +494,8 @@ class Menu
 
 end
 
-
+#For testing - load menu automatically
 
 puts "Displaying menu"
 Menu.display_menu
 
-
-# class CardDeck
-
-# 	def self.execute
-
-		
-# 	end
-
-# end
